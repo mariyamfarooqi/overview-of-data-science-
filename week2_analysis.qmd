@@ -1,0 +1,512 @@
+---
+
+
+## 1.2 Justification
+metadata-files: ["_metadata.yml"]
+title: "Week 2 – Dataset Exploration and First Wrangling"
+subtitle: "Selecting, Cleaning, and Understanding Your Data"
+author: "Group ID: ODS-Team-14"
+editor: 
+  markdown: 
+    wrap: sentence
+---
+
+# Overview
+
+*Introduce the purpose of Week 2 and what this document covers.*
+
+--\> Key aims of this week\
+-To load and install the libraries needed for the dataset's data processing.
+-To retrieve the dataset via the Yahoo Finance API library and apply data preprocessing to it.
+-To check for the initial checkpoints of the dataset where need to check the summary and -glimpse of the data, identify the variable types.
+-To perform data wrangling techniques which include cleaning, missing values, removing duplicates.
+-To transform and validate the data checks.
+-Also,stored the processed file and raw files separately.
+-To explore EDA task with the help of identifying variable types and their roles.
+-To investigate descriptive statistics and discuss central tendencies and dispersion.
+-To use frequency distributions, boxplots, and histograms to depict data in order to spot any utliers and patterns.
+
+--\> Expected outcomes\
+-Analysis Dataset Ready – A through cleaned and validated dataset, structured and transformed to optimize the statistical plotting and outliers -Comprehensive summary report – A detailed report which includes descriptive analysis, visual sights, structural and behaviour of data.
+-Data Insights – A deep understanding about the dataset’s structure and patterns which will ultimately help in establishing future predictions and modelling.
+-The outcomes must be reproducible by any body who run the week2 qmd file and has access to rstudio/rserver.
+
+--\> General encouragement statement -This week focuses on the importance of data integrity and understanding what to perform before advance analysis.
+-To understand about the financial market behaviour as the upgrade and downfall of the stocks occurs consistently.
+-To gain hands on experience with R programming language.
+-To learn cleaning, data wrangling and exploratory data analysis techniques.
+-As the financial data is complex, it requires careful understanding and handling.
+
+# Dataset Selection and Rationale
+
+## 1.1 Dataset choice
+
+*Explain what dataset you are using and why.*
+
+Project Overview: Global Stock Exchange Market Analysis The chosen topic for our project is the Global Stock Exchange Market.
+We are utilizing a widely used, open-source dataset sourced from Yahoo Finance.
+The reference link for the dataset structure is: https://finance.yahoo.com/quote/%5EGSPC/history.
+
+As the stock market is a foundational element in every country's economy, our project will focus on the stock exchanges of four major global markets: India, the United Kingdom, Germany, and Japan.
+
+We have selected the following indices to represent each market:
+
+India: NSEI (Nifty 50) Represents the fastest-growing major economy and an emerging market leader.
+
+United Kingdom: FTSE 100 Represents a major financial hub consisting of key companies.
+
+Germany: GDAXI (DAX) Represents Europe's largest economy and industrial powerhouse.
+
+Japan: N225 (Nikkei 225) Represents Asia's second-largest economy.
+
+The actual reason to choose this dataset is it is an easily accessible and well documented dataset.It is in a structured format with consistent variables across all four markets.Since the dataset spans from 2020 to 2025, it will be particularly interesting to perform time-series prediction and forecasting.
+Given that the stock market impacts the entire global business landscape,our plan is to analysis the Volatility (risk) and Recovery Patterns (resilience) of this stock exchanges.
+
+### (Insert code cells – load dataset)
+
+```{r}
+#install.packages("yfR")
+#install.packages("scales")
+library(yfR)
+
+# Time period range
+first_date <- "2020-01-01"
+last_date <- "2025-09-30"
+
+ticker01 <- c("^NSEI")
+ticker02 <- c("^N225")
+ticker03 <- c("^FTSE")
+ticker04 <- c("^GDAXI")
+
+# Download each dataset
+nsei_raw <- yf_get(ticker01, first_date = first_date, last_date = last_date)
+n225_raw <- yf_get(ticker02, first_date = first_date, last_date = last_date)
+ftse_raw <- yf_get(ticker03, first_date = first_date, last_date = last_date)
+gdaxi_raw <- yf_get(ticker04, first_date = first_date, last_date = last_date)
+
+# Save raw_csv
+write.csv(nsei_raw, "data/raw/nsei_raw.csv", row.names = FALSE)
+write.csv(n225_raw, "data/raw/n225_raw.csv", row.names = FALSE)
+write.csv(ftse_raw, "data/raw/ftse_raw.csv", row.names = FALSE)
+write.csv(gdaxi_raw, "data/raw/gdaxi_raw.csv", row.names = FALSE)
+```
+
+```{r}
+# Read all raw_csv
+library(readr)
+
+#Load raw FTSE data from the saved CSV
+ftse_raw <- read_csv("~/ods-2025/ods-group-project-ods-team-14/data/raw/ftse_raw.csv")
+ftse_raw
+
+#Load raw Dax data from the saved CSV
+gdaxi_raw <- read_csv("~/ods-2025/ods-group-project-ods-team-14/data/raw/gdaxi_raw.csv")
+gdaxi_raw
+
+#Load raw Nikkei 225 data from the saved CSV
+n225_raw <- read_csv("~/ods-2025/ods-group-project-ods-team-14/data/raw/n225_raw.csv")
+n225_raw
+
+#Load raw Nifty 50 data from the saved CSV
+nsei_raw <- read_csv("~/ods-2025/ods-group-project-ods-team-14/data/raw/nsei_raw.csv")
+nsei_raw
+```
+Describe why this dataset suits your project idea.
+This dataset from YFinance for the NSEI, FTSE 100, GDAXI, and N225 indices, is perfectly for our project because it allows direct comparative analysis between diverse economies respond to global events.The selected time frame is crucial because it helps cover major, high-impact global events.It has a structured format and widely used by many for same kind of analysis making it ideal for applying complex analytical techniques.
+
+# 2 First Glimpse of the Data
+
+## 2.1 Initial inspection
+
+Discuss the structure, dimensions, and variable types.
+
+(Insert code cells – glimpse, summary)
+
+```{r}
+# Example: check structure
+#Conducting operations on the FTSE dataset to examine column names and types
+library(dplyr)
+glimpse(ftse_raw)
+```
+
+```{r}
+# summary for all columns in the FTSE dataset
+summary(ftse_raw)
+```
+
+```{r}
+#dimensions (rows, columns) for each raw dataset
+dim(ftse_raw)
+dim(n225_raw)
+dim(nsei_raw)
+dim(gdaxi_raw)
+
+# Data type of each column in the FTSE dataset
+sapply(ftse_raw, class)
+```
+
+## 2.2 Observations
+
+Summarise key insights about shape, columns, and data types.
+
+--\> There is a structural consistency among all the 4 raw datasets of different indices which shared a structure of 11 columns.
+Also, the numbers of rows vary based on the different national holidays leading to inconsistency in the minor row count variations.The datatypes includes date which helps make data time series ready and also numeric values which helps in calculations.
+
+# 3 Initial Data Wrangling
+
+Document cleaning, transformations, and reasoning.
+
+## 3.1 Cleaning
+
+Describe how you handled missing values, duplicates, formats.
+--\> There are zero missing values and no duplicate records across all four stock indices (NSEI, FTSE, GDAXI, and N225).
+We renamed the ticker column to a descriptive country name (e.g., 'UK,' 'Germany') to easily identify the data based on the country name rather than the index code.
+Also, we dropped four redundant return and price adjustment columns.
+Instead, we plan to add new feature columns like Daily Return and Range.
+
+(Insert code cells – cleaning steps)
+
+```{r}
+# cleaning operations
+# checking null value
+sum(is.na(ftse_raw))
+sum(is.na(n225_raw))
+sum(is.na(nsei_raw))
+sum(is.na(gdaxi_raw))
+```
+
+```{r}
+# checking NA values
+is_na <- colSums(is.na(ftse_raw)) # similar for all
+print(is_na)
+```
+
+```{r}
+# Column drop and ticker column edited from FTSE
+ftse_cleaned <- ftse_raw %>%
+  mutate(ticker = "UK") %>%
+  select(
+    -ret_closing_prices,
+    -price_adjusted,
+    -cumret_adjusted_prices,
+    -ret_adjusted_prices
+  )
+ftse_cleaned
+
+#Column drop and ticker column edited from N225
+n225_cleaned <- n225_raw %>%
+  mutate(ticker = "Japan") %>%
+  select(
+    -ret_closing_prices,
+    -price_adjusted,
+    -cumret_adjusted_prices,
+    -ret_adjusted_prices
+  )
+n225_cleaned
+
+#Column drop and ticker column edited from NSEI
+nsei_cleaned <- nsei_raw %>%
+  mutate(ticker = "India") %>%
+  select(
+    -ret_closing_prices,
+    -price_adjusted,
+    -cumret_adjusted_prices,
+    -ret_adjusted_prices
+  )
+nsei_cleaned
+
+#Column drop and ticker column edited from GDAXI
+gdaxi_cleaned <- gdaxi_raw %>%
+  mutate(ticker = "Germany") %>%
+  select(
+    -ret_closing_prices,
+    -price_adjusted,
+    -cumret_adjusted_prices,
+    -ret_adjusted_prices
+  )
+gdaxi_cleaned
+```
+
+## 3.2 Transformation, integration, validation
+
+Conceptual or implemented; note decisions or possible future steps.
+
+--\> We combined four individual cleaned datasets vertically into a single data frame.
+Two new columns added : 1.
+Daily Return: Calculated as the percentage change in the closing price from the previous day.
+2.
+Trading Range: Calculated as the difference between the high and low price for the day.
+In Validation,the initial rows (the first day of trading for each market) that generated NA values during the lag() calculation were removed and renaming of columns for clarity (e.g., ref_date to Date, ticker to Country).
+
+(Insert code cells – optional transformation)
+
+```{r}
+# derived variables or merges
+#Data Integration
+library(purrr)
+
+data_list <- list(
+  NSEI = nsei_cleaned,
+  N225 = n225_cleaned,
+  FTSE = ftse_cleaned,
+  GDAXI = gdaxi_cleaned
+)
+
+```
+
+```{r}
+#merging all the 4 stock exchange datasets
+combined_processed_data <- do.call(rbind, data_list)
+```
+
+```{r}
+# Display the combined dataset
+combined_processed_data
+```
+
+```{r}
+# Transformation: Calculate Daily_Return and Range, then finalize column selection and names
+
+combined_processed_data <- combined_processed_data %>%
+  group_by(ticker) %>%
+  mutate(
+    Daily_Return = (price_close - lag(price_close)) / lag(price_close),
+    Range = price_high - price_low
+  )%>%
+  ungroup() %>%
+  
+  filter(!is.na(Daily_Return)) %>%
+  
+  select(
+    Date = ref_date,
+    Country = ticker,
+    Close = price_close,
+    Daily_Return,
+    Range,
+    High = price_high, 
+    Low = price_low, 
+    Open = price_open, 
+    volume
+  )
+
+combined_processed_data
+
+```
+
+```{r}
+# Validation: Check the unique country labels present
+print(unique(combined_processed_data$Country))
+
+#Validation: Check for NAs in the cleaned dataset
+is_na1 <- colSums(is.na(combined_processed_data)) # similar for all
+print(is_na1)
+```
+
+```{r}
+# Final structural check of the integrated and transformed data
+glimpse(combined_processed_data)
+```
+
+## 3.3 Storing cleaned data
+
+Describe where you saved the processed file and why.
+The file was saved to data/processed location for two primary reasons: 1.Project Organization and 2.Submission Requirements
+
+(Insert code cells – write processed file)
+
+```{r}
+# write cleaned dataset
+# path for PC
+#write.csv(processed_data,"data/processed/processed_data.csv", row.names = FALSE)
+#uncomment this
+write.csv(combined_processed_data, "C:/Users/mg593/OneDrive/Documents/Overview_project_2025/ods-group-project-ods-team-14/data/processed/processed_data.csv")
+```
+
+# 4 Exploratory Data Analysis (EDA)
+
+## 4.1 Variable identification
+
+List variable types and their roles.
+--\> 1.Date - Date variable showing the trading day for each record.
+
+2.Country - Character variable indicating the market or country of the index.
+
+3.Close - Numeric variable showing the market final trading price of the day.
+
+4.Daily_Return - Numeric variable representing the percentage change from the previous close.
+
+5.Range - Numeric variable measuring the difference between the daily high and low prices.
+
+6.High - Numeric variable showing the highest market price reached during the trading day.
+
+7.Low - Numeric variable showing the lowest price reached during the trading day.
+
+8.Open - Numeric variable indicating the market’s opening price for the day.
+
+9.Volume - Numeric variable showing the total number of trades executed on that day.
+
+(Insert code cells – variable listing)
+
+```{r}
+# identify variable types
+sapply(combined_processed_data, class)
+
+```
+
+## 4.2 Descriptive statistics
+
+Discuss central tendencies, dispersion, outliers.
+--\> Dataset contains extreme outliers.
+Also, the Daily return from 2020 to 2025 shows a positive trend.UK shows the lowest Mean Daily Return which India and Japan show the highest mean returns.Meanwhile, Germany had the highest number of trading days, and Japan the lowest.
+
+(Insert code cells – summarise numeric variables)
+
+```{r}
+# descriptive statistics
+summary(combined_processed_data)
+combined_processed_data %>%
+  group_by(Country) %>%
+  summarise(
+    Count = n(),
+    Mean_Daily_Return = mean(Daily_Return, na.rm = TRUE),
+    StdDev_Return = sd(Daily_Return, na.rm = TRUE), # Measures Volatility
+    Mean_Price = mean(Close, na.rm = TRUE),
+    Median_Price = median(Close, na.rm = TRUE),
+    Max_Range = max(Range, na.rm = TRUE),
+  )
+```
+
+## 4.3 Numerical analysis
+
+Discuss histograms and boxplots
+
+(Insert code cells - histograms and baxplots)
+
+```{r}
+library(ggplot2)
+
+# Histogram: distribution of a numeric variable
+hist(
+  combined_processed_data$Daily_Return,
+  main = "Daily Return Distribution",
+  xlab = "Daily Return",
+  col = "red",
+  breaks = 150
+)
+
+#Histogram : distribution country wise
+
+layout(matrix(c(1, 2, 3, 4), nrow = 2, ncol = 2, byrow = TRUE))
+
+countries <- unique(combined_processed_data$Country)
+
+for (country_name in countries) {
+  country_data <- combined_processed_data %>%
+    filter(Country == country_name)
+  hist(
+    country_data$Daily_Return,
+    main = paste(country_name, "Daily Return Distribution"),
+    xlab = "Daily Return",
+    ylim = c(0, max(table(cut(combined_processed_data$Daily_Return, breaks=150)))),
+    col = "green",
+    breaks = 150
+  )
+}
+
+layout(matrix(1, 1, 1))
+```
+
+```{r}
+#Boxplot
+boxplot(
+  Daily_Return ~ Country,
+  data = combined_processed_data,
+  main = "Daily Return Volatility by Market",
+  xlab = "Market Index (Country)",
+  ylab = "Daily Return",
+  col = c("lightblue", "lightgreen", "pink", "orange"),
+  outline = TRUE
+)
+```
+
+## 4.4 Categorical analysis
+
+Discuss frequency distributions or group counts.
+
+(Insert code cells – counts or plots)
+
+```{r}
+# bar plot / counts
+country_counts <- table(combined_processed_data$Country)
+
+barplot(
+  country_counts,
+  main = "Total Trading Days After Integration",
+  xlab = "Market Index (Country)",
+  ylab = "Count of Trading Days",
+  col = c("lightblue", "red", "lightgreen", "lightyellow")
+)
+```
+
+## 4.5 Interpretation
+
+Write short commentary linking patterns to your project context.
+The stock exchange market shows the stock index values which have been generally rising with high spikes.
+This gradual ranges in stock market is visually shown in histogram and box plot.
+The histogram shows the overall distribution of daily returns across different markets, Country wise histograms are reflected to showcase the market stability differences between different countries.The boxplots provide a comparison of daily return and no of outliers present.
+This analysis shows that the market experiences fluctuations as well as consistency.
+
+# 5 Documentation and Reflection
+
+Capture reasoning, challenges, and decisions.
+
+## 5.1 What assumptions did you make?
+
+Trading holidays differ per country but not adjusted here.
+Currency exchange effects are ignored.
+Data from Yahoo Finance is accurate and complete.
+
+## 5.2 What was easy or hard?
+
+The things that were easy - Understanding the structure of the dataset as it was straightforward.
+Performing basic tasks such as data wrangling and Exploratory data analysis as we referred our notes for the steps.
+Creating visual insights such as histograms and bar plot for better understanding.
+
+The things that were hard - Handling data type conversion errors which requires proper understanding of R data type format.
+Planning of the task in a group and distributing equally.
+To plot the histogram of the dataset as we are using 4 different countries, we are unable to merge all in one code.
+We took the help of Generative AI and wrote the code by ourself after understanding how to merge it.
+
+## 5.3 What would you do differently next time?
+
+As this was our first week,the team spent significant time on setup and interpreting the full instructions, resulting in a somewhat confusing and conflicting workflow.Moving forward, we plan to implement detailed, upfront task planning and regular meetings to discuss all necessary steps and ensure balanced distribution of responsibilities.
+
+# 6 Good Practice Reminders
+
+Checklist and reproducibility notes.
+
+-   Comments in code
+-   Relative paths
+-   Push and pull discipline
+-   Consistent naming conventions
+
+# 7 Group Notes and Variations
+
+Describe context-specific adaptations or creative extensions.
+--\> We used a special tool called the yfR library.
+This lets the computer pull the data itself, which is easier to repeat and gives us the most current numbers up to late 2025.
+We created two new columns that are very important for stock analysis:
+
+Daily Return: This is the main number we will use to guess future prices.
+
+Range: This number shows how much the price jumped up and down in one day, which tells us about volatility (risk).
+
+# 8 Final Checkpoint Before Submission
+
+Tick items off to ensure readiness.
+
+-   Dataset in /data/raw/
+-   Cleaned dataset in /data/processed/
+-   HTML output in /outputs/
+-   Reflection written
+-   Changes committed and pushed

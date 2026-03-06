@@ -1,0 +1,392 @@
+
+---
+title: "Week 7 – Visualisation & Storytelling"
+author: "farooqi mariyam fathima faheem"
+format:
+  html:
+    toc-depth: 2
+    code-fold: false
+    code-tools: false
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+
+
+*(Individual Submission)*
+
+This file contains the required structure for your Week 7 submission.
+Replace all placeholder text with your own work.
+
+---
+
+# Dataset Used
+
+::: callout-important
+You are expected to use the same dataset that you used during previous weeks. However, you may switch to another dataset if you can justify the switch. The new dataset (if switched to) must adhere to the same theme as before.
+:::
+
+Briefly describe the dataset you are visualising in the callout below (2–4 sentences). If switching datasets, complete the note below.
+```{r}
+library(dplyr)
+library(readr)
+
+
+processed_data <- read_csv(
+  "C:/Users/mfaro/OneDrive/Documents/ods-2025/ods-group-project-ods-team-14/data/processed/processed_data.csv")
+
+#The above path is local path used to import dataset and the below path is used where dataset is loacted in github.
+ 
+#processed_data <- read_csv("../ods-group-project-ods-team-14/data/processed/processed_data.csv")
+
+```
+
+::: callout-note
+### Dataset Description and Link
+This dataset contains historical market prices obtained via Yahoo
+Finance (processed). It includes daily OHLC (Open, High, Low, Close),
+volume, computed Daily_Return, Range, and Date for one or more market
+indices or equities across different Country values. The data is
+suitable for time-series analysis and cross-sectional comparisons of
+returns and volumes Yahoo_Finance:
+https://legal.yahoo.com/us/en/yahoo/terms/product-atos/apiforydn/index.html
+yfr: https://github.com/ropensci/yfR
+
+:::
+
+::: callout-warning
+#### Dataset Switch Note (Only if applicable)
+
+* Why the original dataset could not be used responsibly
+* Why this new dataset fits the same theme
+* Source + license
+
+:::NA
+
+---
+
+## Improved Visuals from Previous Weeks
+
+*(Minimum 1, Maximum 3)*
+
+Please provide reference to the visuals you choose to improve from previous submissions with traceable and clear reference.
+
+::: {.callout-important collapse="true"}
+#### What “improvement” of a previous plot means (click to reveal)
+
+You may re-include 1 to 3 visuals from Week 2 or Week 4, but only if you improve them. In Week 7, “improvement” does not mean changing the data or re-running the same code. It means making the visualisation clearer, fairer, more accurate, or more purposeful.
+
+You may improve a plot by:
+
+- Fixing misleading or confusing scales
+(e.g., avoiding truncated axes, using appropriate limits).
+
+- Choosing a more suitable chart type
+(e.g., boxplot instead of bar chart for comparisons).
+
+- Improving aesthetics
+(cleaner themes, readable labels, consistent font sizes).
+
+- Clarifying colour choices
+(e.g., use of high-contrast or colour-blind-friendly palettes).
+
+- Adding informative titles or subtitles
+(summarising the key message).
+
+- Fixing labelling issues
+(rename ambiguous variables, use meaningful captions).
+
+- Removing clutter or chart junk
+(superfluous gridlines, 3D effects, unnecessary backgrounds).
+
+- Highlighting or annotating important features
+(e.g., a noticeable outlier, a trend, or a threshold).
+
+- Ensuring ethical clarity
+(e.g., appropriate grouping, non-stereotypical colour use).
+
+Your task is simply:
+
+Take a plot you created earlier and improve how clearly, honestly, and effectively it communicates its insight. You may keep the same chart type or change it to a better one — explain your choice in the bullet points that follow.
+
+:::
+---
+
+### 2.x Original Plot 1 (from Week 2 or 4)
+
+```{r}
+# Paste your original code here
+layout(matrix(c(1, 2, 3, 4), nrow = 2, ncol = 2, byrow = TRUE))
+ 
+countries <- unique(processed_data$Country)
+ 
+for (country_name in countries) {
+  country_data <- processed_data %>%
+    filter(Country == country_name)
+  hist(
+    country_data$Daily_Return,
+    main = paste(country_name, "Daily Return Distribution"),
+    xlab = "Daily Return",
+    ylim = c(0, max(table(cut(processed_data$Daily_Return, breaks=150)))),
+    col = "green",
+    breaks = 150
+  )
+}
+ 
+layout(matrix(1, 1, 1))
+```
+
+> *Include a short reminder of what the original plot attempted to show.*
+
+---
+
+### 2.x Improved Plot 1 (Week 7)
+
+```{r}
+# Your improved plot code goes here
+library(ggplot2)
+ggplot(processed_data, aes(x = Daily_Return, fill = Country)) +
+geom_histogram(
+bins = 80,
+alpha = 0.7,
+colour = "maroon"
+) +
+facet_wrap(~ Country, scales = "free_y") +
+labs(
+title = "Distribution of Daily Returns Across Markets",
+subtitle = "Cleaner and more comparable view using faceted histograms",
+x = "Daily Return",
+y = "Frequency"
+) +
+theme_minimal(base_size = 12) +
+theme(
+legend.position = "none",
+plot.title = element_text(face = "bold", size = 16),
+strip.text = element_text(face = "bold")
+)
+```
+
+::: callout-note
+#### What I Improved and Why (3–6 bullet points):
+
+*I replaced the base R histograms with ggplot2 to make the charts
+cleaner and more professional* I used faceting so each country has its
+own panel making comparisons easier *I set a consistent bin size (80
+bins) so the distributions are fair to compare and added a minimal theme
+to remove clutter and make the plot easier to read* as i included a
+clear title subtitle and axis labels to improve the overall explanation
+of the chart
+
+:::
+
+
+---
+
+**Include require text/code sections if you are adding more improved visuals from previous weeks.**
+
+---
+
+## New Week 7 Visuals
+
+You must produce **at least two new required visuals**:
+
+::: {.callout-important collapse="true"}
+
+#### Possible New Plot Types for Week 7 (Click to reveal)
+
+**(Choose the ones that fit your data best)**
+
+Depending on the nature of your dataset (categorical, numerical, time-based, grouped, or mixed), you may choose from the following plot types:
+
+**Relationship Visuals (for Required Plot A)**
+
+- Scatterplot
+- Scatterplot with regression line (lm)
+- Scatterplot with LOESS smoothing (with visible span parameter)
+- Scatterplot faceted by group
+- Bubble chart (if one variable can act as size)
+- Coloured scatterplot by category
+- Pairwise scatterplot
+- Hexbin or 2D density (for large datasets)
+
+**Distribution Comparison (for Required Plot B)**
+
+- Boxplot
+- Violin plot
+- Half-violin + boxplot hybrid
+- Density overlays
+- Ridge plot (if you have multiple groups)
+- Histogram comparison (but avoid overlapping clutter)
+- Dotplot / beeswarm (for small samples)
+
+**You may add one optional visual, provided it is meaningful for your dataset:**
+
+- Time series line chart
+- Time series with responsible smoothing
+- Grouped line chart
+- Bar chart of counts (not means)
+- Stacked or filled bar proportions
+- Tile/heatmap (if you have two categorical variables)
+- Treemap (for hierarchical counts)
+- Scatterplot with model diagnostics (residuals, fitted vs. observed)
+- Small multiples (facet grid)
+- Correlation heatmap (only if your dataset has ≥4 numeric variables)
+
+**If none of the above fits your dataset, you can choose another plot type — as long as:**
+
+- it is appropriate for what you want to show,
+- it is honest and clear,
+- you justify why it fits your data.
+
+:::
+
+**Note:** If required plots are not possible, please justify the alternatives and adjust the text and explanations accordingly.
+
+---
+
+### A. Relationship Visual (Required)
+
+> Examples: scatterplot + trend line, scatter by subgroup, faceted scatter.
+
+```{r}
+# Relationship plot code here
+# Relationship Plot: Scatter with smoothing
+ggplot(processed_data, aes(x = Range, y = Daily_Return, colour = Country)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "loess", se = FALSE) +
+  labs(
+    title = "Relationship Between Price Range and Daily Returns",
+    subtitle = "LOESS smoothing shows general patterns across countries",
+    x = "Daily Price Range (High - Low)",
+    y = "Daily Return"
+  ) +
+  theme_minimal(base_size = 12)
+```
+
+**Interpretation (2–4 sentences):**
+ There is a visible positive
+relationship between the daily price range and daily returns—days with
+larger price movements tend to show more extreme returns The LOESS
+curves show that different countries exhibit different levels of
+volatility Markets with higher variability tend to show steeper curves
+**Why this plot type is appropriate (1–2 sentences):**
+A scatterplot is
+ideal for evaluating how two continuous variables relate. The smoothing
+line helps highlight patterns that raw points alone may hide.
+---
+
+### B. Distribution Comparison (Required)
+
+> Choose one: boxplot, violin, density comparison, faceting.
+
+```{r}
+# Distribution comparison code here
+# Distribution Comparison: Boxplot
+ggplot(processed_data, aes(x = Country, y = Daily_Return, fill = Country)) +
+  geom_boxplot(alpha = 0.7) +
+  labs(
+    title = "Distribution of Daily Returns by Country",
+    subtitle = "Boxplots show median, spread, and outliers across markets",
+    x = "Country",
+    y = "Daily Return"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "none")
+```
+
+**Interpretation (2–4 sentences):**
+The boxplots show clear differences
+in return variability across countries Some markets display wider
+interquartile ranges indicating higher volatility while others show
+tighter distributions Outliers reveal occasional extreme return events
+in several countries
+**Why this plot type is appropriate (1–2 sentences):**
+ A boxplot is the most effective way to compare
+distributions across several groups showing medians spread and outliers
+concisely
+---
+
+### C. Trend / Group Comparison (Optional)
+
+```{r}
+# Optional extra plot
+```
+
+> Explain only if included.
+
+---
+
+## Narrative
+
+Write a short narrative connecting your visuals into a coherent data story.
+
+Example structure (keep it simple):
+
+* What question/theme the visuals address
+* What the relationship plot reveals
+* What the distribution plot clarifies
+* Optional: what trend/group plot adds
+* A closing insight
+Ans --> These visuals examine cross country differences in
+    daily market volatility and returns The relationship plot shows that
+    higher intraday price ranges are associated with more extreme
+    returns with countries exhibiting distinct volatility–return
+    patterns The boxplots further highlight variation in return
+    dispersion and outlier frequency across markets The optional
+    time-series view contextualises periods of heightened or reduced
+    volatility Overall the visuals demonstrate that markets differ both
+    in their volatility levels and in how volatility translates into
+    daily return behaviour
+---
+
+## Responsible Design Notes
+
+Provide brief bullet points about your design decisions:
+
+*I used consistent colours for countries to avoid confusion and maintain
+clarity across plots* Faceting and grouped visuals were used to ensure
+fair comparisons without misleading shared scales *I applied minimal
+themes and removed unnecessary visual elements to keep the focus on the
+data* Axis labels titles and subtitles were strengthened to make the
+purpose of each plot clear
+
+---
+
+## Responsible Use of AI (RVE Note)
+
+Complete one of the two options below.
+
+### **If you used AI:**
+
+Include the following block for each interaction.
+
+```
+- Tool/model used:ChatGPT (OpenAI)
+- Prompt (short paraphrase is OK):Asked for help writing narrative text design notes and verifying R code for Week 7 assignment
+- What the AI generated:Provided narrative design notes and improved/verified code
+- How you verified it:Checked code by reading ran test logic in RStudio and ensured alignment with dataset structure
+- What you changed:Adjusted some wording, adapted examples to my dataset, and ensured the explanations matched my plots.Adjusted some wording adapted examples to my dataset and ensured the explanations matched my plots
+```
+
+### **If you did NOT use AI:**
+
+> *“I did not use AI for code or interpretation. All design decisions and commentary are my own.”*
+
+---
+
+## Appendix (Optional)
+
+You may place additional plots, tests, or reproducibility info here.
+
+```{r}
+# Optional extras
+# sessionInfo()
+```
+
+---
+
+# **END OF FILE**
+
+---

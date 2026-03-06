@@ -1,0 +1,146 @@
+---
+title: "Week 3 – Understanding Your Data: Provenance, Quality & Risks"
+author: "Group ID: ODS-Team-14"
+date: "`r format(Sys.Date())`"
+format:
+  html:
+    toc: false
+    toc-depth: 2
+---
+
+## Overview {.unnumbered}
+
+::: callout-note
+### What this file is for
+
+This week’s focus is more on **reflection and documentation**, and less or not on coding.\
+You will describe where your data comes from, how trustworthy it is, and what risks or limitations it may carry.
+:::
+
+---
+
+# Dataset Overview
+
+
+The dataset comprises of daily historical stock index price data for four major global indices : India (NSEI), Japan (N225), United Kingdom (FTSE), and Germany (GDAXI), spanning from 01 January 2022 to 30 September 2025. 
+This dataset, includes feature columns like open, high, low, close, adjusted close prices, and trading volume.
+It was sourced from Yahoo Finance and accessed programmatically via "yfr" an R package(developed by Marcelo Perlin),the package underwent review by Nic Crane and Alexander Fischer for rOpenSci.
+It provides reliable, standardized financial data with sufficient detail for comparing international stock market trends and volatility which is the objective of our project.
+
+---
+
+# Provenance Summary
+
+Use the table below to record evidence and assessments about your dataset. You can edit or expand it as needed. Please provide short support statement (1-2 lines each) for your verditcs.
+
+| Criterion | Evidence Checked | Verdict |
+|:--|:--|:--|
+
+**Origin & Authority** | Yahoo Finance, using the reliable yfR program.|⚠️|The program is good, but Yahoo warns not to use their data for actual investing.
+
+**Coverage & Completeness** |Daily prices for 4 big global markets (2022-2025). The dataset covers 4 major countries 2 each from Europe and Asia.It contains 5736 rows and 9 columns. | ✅ |
+We have enough data from the right places.
+
+**Timeliness & Stability** | Updated daily.Whenever the program runs in our system. | ✅ |
+
+**Format & Access** | Yes,the import path is reproducible and they are csv files. | ✅ |
+Easy to get, easy to use in our R analysis.
+
+**Documentation & Versioning** | Instructions available widely for the yfR program. |⚠️|
+The program instructions are great, but doesn't have a clear guide for exactly how they calculate all their price numbers.
+
+**License & Attribution** | Yahoo says we can't share the raw data and can only use it for simple information. |⚠️|We can't share the data file with external sources, which makes it tough for them to perfectly check our work. We need to say "Data from Yahoo Finance."
+
+**Sensitivity & Ethics** | Public stock market numbers only. No personal names or private details.|✅ |
+This is public data, so there are no worries about privacy for school work.
+---
+
+## Understanding Each Criterion
+
+**Origin & Authority:** Data is downloaded from the YFR package which is developed by Marcelo Perlin and reviewed by OpenRSci.
+
+**Coverage & Completeness:** The data span is from 1st January 2022 to 30th September 2025. We have taken 4 regions for stock market analysis – India, UK, Germany and Japan. No missing years. There are many countries when it comes to regions, but we just focus on four that don't affect any gaps in our analysis.
+
+**Timeliness & Stability:** 
+It is updated daily on Yahoo finance as the market goes up and down. The values for high and low changes on a daily basis.
+The structure of the dataset in respect to columns did not vary that much but the values of the dataset changed with respect to upgrade and downfall of the market. This rise and fall are the demonstration of actual trends in the market and not structural.
+
+**Format & Access:** The YFinance python API is used to retrieve the data in the form of dataframe. Now this can be easily exported to CSV/JSON format for reproducible use. We have extracted the data through python where we have used read_csv to extract the data.  
+
+**Documentation & Versioning:**
+Similar type of documentation is in docs.ropensci.org/yfR and also it is reviewed by ropensci.
+The yfr package version is 1.1.2
+Link :https://github.com/ropensci/yfR
+
+**License & Attribution:**  
+
+**License Name:** MIT + file LICENSE
+
+**License Link:**  
+Yahoo_Finance: https://legal.yahoo.com/us/en/yahoo/terms/product-atos/apiforydn/index.html
+yfr: https://github.com/ropensci/yfR
+
+**Attribution Text (if provided):**  Data is downloaded from Yahoo Finance. Yahoo Finance is a vast repository of stock price data.
+
+NOTE:
+
+Yahoo Finance does not provide a public API for its financial data , accessing this information, even via libraries like yfr, relies on unofficial methods that interact with Yahoo's public data feeds.
+The use of this data is strictly governed by Yahoo's Terms of Use, which impose several critical constraints:
+1.The data is provided for informational purposes only ; it must not be used for direct trading or investment decisions.
+2.The data cannot be redistributed to external sources.
+3.Essentially, you can utilize this data for academic research and analysis, but you cannot use it to power a commercial use or publicly share the data files.
+
+**Sensitivity & Ethics:**The data is available publicly and no personal or sensitive information is stored in the dataset. 
+It is designed for academic research purposes. 
+
+---
+
+## Licensing Details
+
+**License Name:** MIT + file LICENSE
+
+**License Link:**  
+Yahoo_Finance: https://legal.yahoo.com/us/en/yahoo/terms/product-atos/apiforydn/index.html
+yfr: https://github.com/ropensci/yfR
+
+**Attribution Text (if provided):**  Data is downloaded from Yahoo Finance. Yahoo Finance is a vast repository of stock price data.
+
+**Notes on Limitations (e.g., Non-Commercial):**The yfr package uses a cache system which by default is session-persistent (files are lost when the R session is restarted). Using a persistent cache folder is generally fine for indices data, but for stock price data, aggregation issues might occur if splits or dividends happen between cache files.  
+
+---
+
+# Early Risks Reflection
+
+Write about **150 words** identifying key risks or concerns, such as: 
+
+- Missing data or uneven coverage\
+- Potential bias or lack of representativeness\
+- Ethical or licensing uncertainties\
+- How these issues might affect later analysis
+
+> *Tip:* Think “If someone reused our results, what could mislead them?”
+-->
+
+Key risks is the  restrictions on licensing and data quality control.
+
+The biggest problem is that we cannot share the raw dataset file due to Yahoo Finance's terms, which limits perfect data reproducibility for others. However, the work is still code-reproducible; anyone can run our R script using the public yfR package to create the same dataset.
+
+The initial risk regarding yfr's undocumented Adjusted Close Price methodology has been mitigated. We deleted that column and instead calculated two critical, transparent metrics ourselves: Daily Return and Daily Range. This ensures the core data used for our comparative analysis is accurate and controlled.
+
+---
+
+# (Optional) API Comparison
+We used the yfR API client instead of a direct download primarily because Yahoo Finance has it behind a paywall.Also,API approach helps us ensures daily updates instead of a static dataset.
+---
+
+# (Optional) Scouting / Alternative Data
+
+List any other datasets you explored (name, link, why rejected or unsuitable). These could be the datasets that are somehow comparable to what you are currently using.\
+A short bullet list is enough.
+| Dataset / Source | Relation to Main Dataset | Outcome / Issues |
+|:-----------------|:-------------------------|:-----------------|
+|quantmod package  |Another R package for Yahoo Finance data.|yfR was better organized for our type of academic work.|
+|Alpha Vantage API |Free financial data source.|The free limit (5 calls/min) was too restrictive.|
+|EODHD|High-end professional data source.|Requires specialized training and access.Unnecessary for the scope of an MSc coursework project.|
+
+---

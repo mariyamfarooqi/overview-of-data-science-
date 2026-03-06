@@ -1,0 +1,189 @@
+---
+title: "Week 5 – BER"
+subtitle: "Bias, Fairness, Ethics & Reproducibility"
+author: "Group ID: ODS-Team-14"
+editor:
+  markdown:
+    wrap: sentence
+---
+
+## Overview {.unnumbered}
+
+::: callout-note
+In Week 5 we extend the idea of trustworthy data science from **clean data** to **fair and reproducible practice**. 
+
+Key themes:
+- **Bias & Fairness**
+- **Ethics (FATE – Fairness, Accountability, Transparency, Explainability)**
+- **Reproducibility**
+---
+
+## 5.1 Why “Clean” Doesn’t Mean “Fair”
+
+**What is your project’s main question or goal?**
+
+To analyze the unpredictable patterns and time forecasting is the main goal of our project.
+
+**Which stage of bias do you want to focus on?**
+
+We want to focus on **modelling bias**.
+
+**Describing how your project’s purpose or question could amplify or reduce this bias:**
+
+Our project's goal of analyzing unpredictable patterns and time forecasting relies heavily on the GARCH family of models, which can amplify modelling bias if their core assumptions (like residuals being white noise, or the appropriate distribution for the errors) are not met. The choice of an incorrect model (e.g., Simple Linear Regression on volatile data) or a poor choice of model parameters would directly lead to biased forecasts and conclusions about "unpredictability." By using GARCH and comparing it with other models, we aim to reduce this bias by selecting the best-fit model that captures the clustered volatility specific to financial returns.
+
+**A note on what you can still control or document about this project**
+
+* **Clarify the Model’s scope:** We are studying short-term volatility using daily data. Our goal is to understand how unpredictable markets are grouped together.
+
+* **Justify Model Choice:** We will use GARCH and rolling-volatility models because they work well with financial data where daily returns show clustered volatility.
+
+* **Check assumptions:** We will test whether our data meets the basic conditions needed for these models and this can be done through statistical models and some data transformation.
+
+* **Compare models:** We will compare with advanced models. This will help us see which one better captures unpredictable patterns and which ones are persistent in the market.
+
+* **Acknowledge limitations:** Data from a single country may limit the generalizability of results. That’s why we took 4 countries for analysis.
+
+**Control Mark:**  ✅ 
+
+---
+**5.1.2 Imbalance vs. Bias**
+
+**What population does my current dataset really represent?**
+
+Major stock exchanges from four specific developed/Asian-European countries (e.g., FTSE 100, GDAXI, Nikkei 225, NSEI).
+
+What population does my analysis claim to represent?
+
+The comparison of market characteristics and volatility clustering in those four specific exchanges, only.
+
+Is there a mismatch between the two — and if so, have I acknowledged it?
+
+There is a mismatch if we imply our findings represent global or even pan-European/pan-Asian markets. We have acknowledged this limitation by stating the limited scope.
+
+---
+
+## 5.2 Exploring Fairness & Trade-offs
+
+**Weekly Task 5.2**
+Define fairness in your context which type matters most: representation fairness (equal inclusion of data sources) or outcome fairness (balanced predictive accuracy)?
+
+**Your response:**
+Representation Fairness matters most. We ensure this by using the same time period (2020 to 2025) and same data source API (Yahoo Finance via `yfr` package) for all four exchanges, ensuring no specific market is over-represented or disadvantaged in the input data collection and cleaning stage. Outcome fairness is less applicable as we are comparing markets, not making predictions that affect human lives.
+
+### 5.2.2 Mini Demo Checking Groupwise Outcomes
+```{r}
+library(dplyr)
+library(tidyverse)
+
+# Load your cleaned dataset
+#install.packages("yfR")
+#install.packages("scales")
+library(yfR)
+
+#The below path is for PC
+data <- read.csv("~/ODS-2025/ods-group-project-ods-team-14/data/processed/processed_data.csv")
+
+#The below path is for github and it can be replaced with the PC path to access the dataset.
+
+# Quick structure check
+glimpse(data)
+
+# Suppose we want to compare average grades between two random groups of students
+set.seed(42)   # Ensures everyone creates the same split
+data <- data |> mutate(group = sample(c("A", "B"), n(), replace = TRUE))
+
+# Compare average grade in each group
+data |>
+  group_by(group) |>
+  summarise(Daily_Return = mean(Daily_Return, na.rm = TRUE))
+```
+---
+
+## 5.3 Human Bias in the Loop
+
+**Weekly Task 5.3**
+Identify one subgroup variable (e.g., exchange or region).
+Explain how unequal proportions or outcomes could create fairness issues.
+Describe how you’ll detect or document these imbalances.
+
+**Your response:**
+In our project, data can be split using the basis of two terms one is the country where we have merged all 4 countries in our dataset that can be separated each country wise to look upon and compare the values. Also, the data can be  divided by dates,months and years where we can filter out during the covid period how the market was and then how it gradually went up.
+---
+
+## 5.4 From Ethics to FATE
+
+**Weekly Task 5.4**
+Write one hypothesis your group might test using the dataset.
+
+**Your response:**
+Whether the UK market (FTSE) and the Indian market (NSE) have a statistically different average daily return from 2020 to 2025, even after adjusting our analysis to account for their differences in volatility (Standard Deviation).
+
+**Weekly Task 5.5**
+Think of one model (used or possible).
+A Simple Linear Regression Model predicting stock return based on intraday price Range.
+
+What might make its predictions unreliable or biased?
+Our model is sensitive to historical shocks or Temporal Bias caused by outliers (extreme daily price swings). If we try to use this model to predict returns in normal, calm market conditions, the predictions will be inaccurate because the model still "remembers" and accounts for that extreme, volatile history, even though those conditions aren't present today.
+
+How could humans verify or sanity-check those results?
+We can check the error pattern for examples like plotting the model residuals against the date when they occurred. Second, we must perform a sanity check by comparing the model's output to actual market reality. If the model's predictions contradict known market outcomes, its results are not grounded in reality and should not be trusted.
+
+**Weekly Task 5.6**
+Consider publication bias — what weak or “uninteresting” results might go unreported?
+How could mentioning or documenting them improve transparency?
+
+**Your response:**
+The volatility clustering results of some of these models and markets were weak or inconsistent in our analysis. These outcomes may not be that interesting, but the more they are documented the more transparency is enhanced as well as the boundaries of model performance in various conditions. By reporting both strong and weak findings, we will be able to have balanced and reproducible conclusions.
+
+**Weekly Task 5.7**
+Reflect on the FATE principles (Fairness, Accountability, Transparency, Ethics).
+
+| Principles | Our Project |
+| :--- | :--- |
+| **Fairness** | The data retrieved from Yahoo Finance using the `yfr` package API is from 2020 to 2025 (i.e., the same time period for all four exchanges) to ensure a fair comparison. No specific country market has been over-represented, and all data was taken from the same public source. |
+| **Accountability** | Version control tools like **GitHub** were used to keep a clear record of all edits and ensure the work could be reviewed. All data imports, transformations, and visualisations will be logged with comments so results can be traced back to specific steps. |
+| **Transparency** | All steps are explained in our `.qmd` files so others can understand and repeat our process. All methods and data sources (**Yahoo Finance**) are clearly cited so that they can be traced back. |
+| **Explainability** | We provided a **plain English explanation** and graphical representation for each statistical result (SD, IQR, regression, residuals). We also answered several theoretical questions to help clarify the project's concepts. |
+
+---
+
+## 5.5 Ethical Domains in Practice
+
+**Weekly Task 5.8**
+Choose the most relevant ethical domain for your project: privacy, transparency, representation, environmental, or societal impact.
+Add what step your group can take to reduce risk or increase fairness.
+
+**Your response:**
+* **Ethical Domain:** Representation
+* **Reason:** Our project's main goal is to analyze and compare specific Asian and European developed markets. To keep the project focused, we selected only one major stock exchange from each of the four chosen countries and deliberately excluded all others. We must transparently acknowledge that we did not include other key regions, such as the economies of Africa, North America, and South America, as well as other major European and Asian economies.
+* **Action:** **We’ll mention that our conclusions reflect only major developed/Asian-European markets** in the limitations section of the final report.
+
+---
+
+## 5.6 Reproducibility as Ethical Duty
+
+**Weekly Task 5.9**
+Record your reproducibility progress.
+What have you completed? What will you add next?
+
+Completed:
+We are using the same date range across all markets.
+Set seed value for reproducibility (`set.seed(42)`).
+Save all cleaned datasets and scripts on **GitHub**.
+Include comments, version control logs explaining each step.
+
+**Evidence for Audit Folder:**
+We will include the **exact code used to download the data (tickers and dates)** and a **list of all software versions** we used (e.g., R version and key package versions). This lets anyone easily re-create the data and environment for full verification.
+
+---
+
+## Summary Reflection
+
+Briefly summarise your key learning from this week — what surprised you, and what ethical or reproducibility steps you’ll apply next time.
+
+**Key Learning:** The most surprising takeaway was that simply having 'clean' data doesn't guarantee a 'fair' or trustworthy analysis. Bias can creep in at the modelling and interpretation stages, even with objective financial data.
+
+**Next Steps:** In future projects, We will immediately prioritise documenting the **scope and limitations of the sample population** (Representation) and commit to **reporting weak/inconsistent results** (Transparency) alongside the strong ones to ensure a balanced conclusion.
+
+---

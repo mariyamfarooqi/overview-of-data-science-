@@ -1,0 +1,207 @@
+---
+title: "Week 4 – Statistics: Distributions & First Model"
+author: "Group ID: ODS-TEAM-14"
+date: "`r format(Sys.Date())`"
+format:
+  html:
+    toc: false
+    toc-depth: 2
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+## Overview {.unnumbered}
+
+::: callout-note
+### What this file is for
+
+This week is hands-on with **statistics**. You will: - Measure spread
+(**SD, IQR**) for two numerical variables - Visualise **distribution
+shapes** (histograms + Normal overlays) - Fit a **simple linear
+regression** (e.g., `grade ~ study_hours`) - Inspect **residuals** to
+check model fit - Record brief **group reflections**
+
+Work with your **cleaned Week 2 dataset** (no impossible or extreme
+values).
+:::
+
+------------------------------------------------------------------------
+
+# Dataset & Setup
+
+Use your cleaned dataset prepared in Week 2. Mind the file path.
+
+```{r}
+library(tidyverse)
+
+# Load your cleaned dataset
+#install.packages("yfR")
+#install.packages("scales")
+library(yfR)
+
+#The below path is for PC
+data <- read.csv("~/ods-2025/ods-group-project-ods-team-14/data/processed/processed_data.csv")
+
+#The below path is for github and it can be replaced with the PC path to access the dataset.
+
+# Quick structure check
+glimpse(data)
+```
+
+```{r}
+summary(data)
+```
+
+**Confirm (1–2 lines):** that the dataset loaded correctly
+(rows/columns) and that `grade` and `study_hours` are numeric.
+
+Ans --> Dataset loaded successfully with 5736 rows and 10 columns both Daily_Return and Range are numeric , so can be used for statistical analysis and modeling.
+------------------------------------------------------------------------
+
+# Spread & Variability
+
+Compute summaries, SD, and IQRs for at least two two main variables from
+your dataset (e.g., `grade` and `study_hours`).
+
+```{r}
+# Summaries
+# descriptive statistics
+sd_iqr <- data.frame(
+Variable = c("Daily_Return", "Range"),
+SD = c(sd(data$Daily_Return), sd(data$Range)),
+IQR = c(IQR(data$Daily_Return), IQR(data$Range))
+)
+sd_iqr
+```
+
+**Comment (2–3 lines):** Which variable varies more? Are the ranges
+reasonable? What does the **IQR** say about the middle 50%?
+
+Ans --> Range varies more than Daily_Return
+as it has higher SD and IQR. Daily return stays close to zero while range fluctuates widely.
+------------------------------------------------------------------------
+
+# Distribution Shapes
+
+Plot histograms and compare with a Normal curve for the same variables.
+
+```{r}
+# Histogram and normal curve for variable 1
+library(ggplot2)
+
+# Histogram and normal curve for Daily_Return
+hist(data$Daily_Return,breaks = 40,prob = TRUE,
+     main = "Distribution of Daily Returns",
+     xlab = "Daily Return",
+     col = "skyblue",
+     border = "white")
+curve(dnorm(x,mean = mean(data$Daily_Return, na.rm = TRUE),
+            sd = sd(data$Daily_Return, na.rm = TRUE)),
+      add = TRUE, col = "red", lwd = 2)
+ 
+# Histogram and normal curve for Range
+hist(data$Range,breaks = 40,prob = TRUE,
+     main = "Distribution of Range",
+     xlab = "Range",
+     col = "lightgreen",
+     border = "white")
+ 
+curve(dnorm(x,mean = mean(data$Range, na.rm = TRUE),
+            sd = sd(data$Range, na.rm = TRUE)),
+      add = TRUE, col = "red", lwd = 2)
+```
+
+**Comment (2–3 lines):** Is each variable roughly Normal, skewed, or
+heavy-tailed? Does the red curve fit well? Any gaps or outliers?
+
+Ans --> The range is right-skewed and heavy-tailed as well as the daily_return is closely to normal.Overall the distribution is slightly heavy-tailed.
+------------------------------------------------------------------------
+
+# First Model (Simple Linear Regression)
+
+Fit a simple linear model (use appropriate variables and reason your
+choice).
+
+```{r}
+# create a model usinf lm and provide summary
+model <- lm(data$Daily_Return ~ data$Range)
+```
+
+```{r}
+summary(model)
+```
+
+**Interpretation (3–4 lines):** - Intercept (β₀) = \_\_\_ means … -
+Slope (β₁) = \_\_\_ means … - (Optional) Is the slope statistically
+significant (p-value)? - (Optional) How much variation does the model
+explain (R²)?
+
+Ans --> Intercept (β₀) = 0.00203 means when range = 0, then daily_return is approximately = 0.20%
+Slope (β₁) = -7.46 means the daily_return descreases showing large intraday functions.
+
+::: callout-note
+### What is a model?
+
+A **model** is a simplified, mathematical explanation of how things
+relate or behave.\
+It is **expressed mathematically** (equation/algorithm), **summarises**
+relationships, **simplifies** what matters, **generalises (within
+limits)**, and **must be interpretable**.
+
+> A good model is clear, honest, and useful — not a perfect copy of
+> reality, but a way to think better about it.
+:::
+
+------------------------------------------------------------------------
+
+# Model Fit (Residuals)
+
+Residuals are **errors** = observed − predicted. They should look like
+random noise around 0.
+
+```{r}
+# Plot the residuals including abline
+plot(model$residuals, 
+     main = "Model Residuals", 
+     ylab = "Residuals")
+abline(h = 0, col = "red")
+```
+
+**Comment (2–3 lines):** Are residuals roughly centred around 0 and
+randomly scattered? Any patterns or extreme points? What does this
+suggest about model fit?
+
+Ans --> The residual is linearly fit and is centered around 0 and it is randomly scattered above and below the red line. It has no random strong patterns which makes the linear relationship between Daily_return and range to be reasonable.
+------------------------------------------------------------------------
+
+# Group Reflection
+
+Keep answers short and specific (1–2 sentences each).
+
+| Question | Reflection |
+|:-----------------------------------|:-----------------------------------|
+| **Distributions:** What did shapes reveal about variation or consistency?
+
+|  | --> The residual is randomly scattered and roughly centered around zero and a consistent variance is across the fitted values.
+
+| **Model:** What does your regression line suggest about the relationship?
+
+|  | --> The regression line depicts that there is a weak negative correlation between Range and Daily_Return i.e. the higher the Range the lower is the Daily_Return.
+
+| **Learning:** What was the main thing you learned about your dataset this week? |  |
+
+--> We learned how to build and interpret a simple linear regression model, and how to understand basic statistical terms like SD (standard deviation) and IQR (interquartile range), which helped to observe stock prices change over time.
+------------------------------------------------------------------------
+
+# Expected Outputs
+
+Your file should include (at least): - Two distribution plots - One
+scatterplot with fitted regression line - One residual plot - Regression
+summary with brief interpretation - Completed reflection table
+
+------------------------------------------------------------------------
+
+# You are free to explore further along modeling (e.g., trying different variable combinations, or trying multiple regression, or different models available in R libraries).
+
+# You may also explore along p-values and R².
